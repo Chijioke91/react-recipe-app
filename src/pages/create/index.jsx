@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useAddRecipe } from '../../hooks/useFetchRecipe';
 import './Create.css';
 
 export default function Create() {
@@ -18,8 +19,19 @@ export default function Create() {
 
   const { title, method, time, newIngredient } = formData;
 
+  const { mutate } = useAddRecipe();
+
   const onSubmit = (e) => {
     e.preventDefault();
+
+    const recipe = {
+      title,
+      ingredients,
+      method,
+      cookingTime: `${time} minutes`,
+    };
+
+    mutate(recipe);
   };
 
   const onAdd = (e) => {
