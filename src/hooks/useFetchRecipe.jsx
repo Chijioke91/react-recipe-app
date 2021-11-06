@@ -1,17 +1,19 @@
 import { useQuery, useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase/config';
 
 const fetchRecipe = async ({ queryKey }) => {
-  const res = await fetch(`http://localhost:9001/recipes/${queryKey[1]}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    const doc = await db.collection('recipes').doc(queryKey[1]).get();
 
-  if (!res.ok) {
-    throw new Error('Could not fetch data');
+    if (!doc.exists) {
+      throw new Error('Could not find recipe');
+    }
+
+    return doc.data();
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  return res.json();
 };
 
 export const useFetchRecipe = (id) => {
@@ -19,17 +21,11 @@ export const useFetchRecipe = (id) => {
 };
 
 const addRecipe = async (recipe) => {
-  const res = await fetch('http://localhost:9001/recipes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(recipe),
-  });
-
-  if (!res.ok) {
-    throw new Error('Could not create a new recipe');
+  try {
+    await db.collection('recipes').add(recipe);
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  return res.json();
 };
 
 export const useAddRecipe = () => {

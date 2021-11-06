@@ -1,16 +1,24 @@
 import { useQuery } from 'react-query';
+import { db } from '../firebase/config';
 
 const fetchRecipes = async () => {
-  const res = await fetch('http://localhost:9001/recipes', {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    const snapshots = await db.collection('recipes').get();
 
-  if (!res.ok) {
-    throw new Error('Could not fetch data');
+    if (snapshots.empty) {
+      throw new Error('Could not fetch recipes');
+    }
+
+    let results = [];
+
+    snapshots.docs.forEach((doc) => {
+      results.push({ id: doc.id, ...doc.data() });
+    });
+
+    return results;
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  return res.json();
 };
 
 export const useFetchRecipes = () => {
