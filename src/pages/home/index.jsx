@@ -5,9 +5,10 @@ import './Home.css';
 export default function Home() {
   const { data, isLoading, error, isError } = useFetchRecipes();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="loading">Loading...</div>;
 
-  if (isError) return <div>{error.message}</div>;
+  if (!isLoading && isError)
+    return <div className="error">{error.message}</div>;
 
   return <div className="home">{data && <RecipeList recipes={data} />}</div>;
 }
